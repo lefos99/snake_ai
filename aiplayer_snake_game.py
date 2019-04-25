@@ -95,12 +95,12 @@ def trainingDataToString(filewriter, foodPos, snakePos, snakeBody, direction):
 	filewriter.writerow(data_string)
 
 # load json and create model
-with open('snake_player_model.json', 'r') as json_file:
+with open('model/snake_player_model.json', 'r') as json_file:
 	loaded_model_json = json_file.read()
 	json_file.close()
 	loaded_model = model_from_json(loaded_model_json)
 	# load weights into new model
-	loaded_model.load_weights("model.h5")
+	loaded_model.load_weights("model/model.h5")
 	print("Loaded ai player from disk!")
 
 	while True:
