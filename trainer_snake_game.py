@@ -36,7 +36,7 @@ fpsController = pygame.time.Clock()
 delta = 10
 snakePos = [100, 50]
 snakeBody = [[100, 50], [90, 50], [80, 50]]
-foodPos = [400, 50]
+foodPos = [random.randrange(1, width // 10) * delta, random.randrange(1, height // 10) * delta]
 foodSpawn = True
 direction = 'RIGHT'
 changeto = 'RIGHT'
@@ -81,7 +81,6 @@ def showScore(choice=1):
 
 # Save the training data in a csv file
 def trainingDataToString(filewriter, foodPos, snakePos, snakeBody, old_direction, new_direction):
-	print("Saving Data...")
 	
 	data_list = [foodPos[0], foodPos[1], snakePos[0], snakePos[1], 
 				snakeBody[0][0], snakeBody[0][1], 
@@ -91,7 +90,6 @@ def trainingDataToString(filewriter, foodPos, snakePos, snakeBody, old_direction
 				len(snakeBody), translateDirToInt(old_direction),
 				translateDirToInt(new_direction)]
 	data_string = [str(i) for i in data_list]
-	print(data_string)
 	filewriter.writerow(data_string)
 
 df = pd.read_csv('snake_data.csv')
@@ -133,11 +131,11 @@ with open('snake_data.csv', mode) as csvfile:
 		# Validate direction
 		if changeto == 'RIGHT' and direction != 'LEFT':
 			direction = changeto
-		if changeto == 'LEFT' and direction != 'RIGHT':
+		elif changeto == 'LEFT' and direction != 'RIGHT':
 			direction = changeto
-		if changeto == 'UP' and direction != 'DOWN':
+		elif changeto == 'UP' and direction != 'DOWN':
 			direction = changeto
-		if changeto == 'DOWN' and direction != 'UP':
+		elif changeto == 'DOWN' and direction != 'UP':
 			direction = changeto
 
 		# Update snake position

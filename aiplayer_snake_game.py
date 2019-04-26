@@ -104,12 +104,15 @@ with open('model/snake_player_model.json', 'r') as json_file:
 	print("Loaded ai player from disk!")
 
 	while True:
-		cur_data_list = np.array([[foodPos[0], foodPos[1], snakePos[0], snakePos[1], 
-				snakeBody[0][0], snakeBody[0][1], 
+		cur_data_list = np.array([[foodPos[0], foodPos[1], 
+				snakePos[0], snakePos[1], 
+				# ~ snakeBody[0][0], snakeBody[0][1], 
 				snakeBody[int(len(snakeBody)/2)+1][0],
 				snakeBody[int(len(snakeBody)/2)+1][1], 
-				snakeBody[-1][0], snakeBody[-1][1],
-				len(snakeBody), translateDirToInt(direction)]])
+				# ~ snakeBody[-1][0], snakeBody[-1][1],
+				# ~ len(snakeBody), 
+				# ~ translateDirToInt(direction)
+				]])
 		current_pred = loaded_model.predict(x=cur_data_list)
 		next_dir = np.argmax(current_pred)
 
@@ -141,12 +144,26 @@ with open('model/snake_player_model.json', 'r') as json_file:
 		# Validate direction
 		if changeto == 'RIGHT' and direction != 'LEFT':
 			direction = changeto
-		if changeto == 'LEFT' and direction != 'RIGHT':
+		elif changeto == 'LEFT' and direction != 'RIGHT':
 			direction = changeto
-		if changeto == 'UP' and direction != 'DOWN':
+		elif changeto == 'UP' and direction != 'DOWN':
 			direction = changeto
-		if changeto == 'DOWN' and direction != 'UP':
+		elif changeto == 'DOWN' and direction != 'UP':
 			direction = changeto
+			
+		# Help Snake trun 180 degrees
+		if changeto == 'RIGHT' and direction == 'LEFT':
+			direction = 'UP'
+			print("Help was needed!")
+		elif changeto == 'LEFT' and direction == 'RIGHT':
+			direction = 'DOWN'
+			print("Help was needed!")
+		elif changeto == 'UP' and direction == 'DOWN':
+			direction = 'RIGHT'
+			print("Help was needed!")
+		elif changeto == 'DOWN' and direction == 'UP':
+			direction = 'LEFT'
+			print("Help was needed!")
 
 		# Update snake position
 		if direction == 'RIGHT':
