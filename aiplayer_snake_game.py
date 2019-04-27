@@ -11,6 +11,7 @@ import numpy as np
 
 from keras.models import model_from_json
 import pandas as pd
+import yaml
 
 # Pygame Init
 init_status = pygame.init()
@@ -82,17 +83,41 @@ def translateDirToInt(direction):
 	return dirinteger
 
 # Save the training data in a csv file
-def trainingDataToString(filewriter, foodPos, snakePos, snakeBody, direction):
+def createFeatureArray(param, foodPos, snakePos, snakeBody, direction):
+	feature_array = []
+	if param["game_features"]["foodX"] == True:
+		feature_array.append(foodPos[0])
+	if param["game_features"]["foodY"] == True:
+		feature_array.append(foodPos[1])
+	if param["game_features"]["snakeX"] == True:
+		feature_array.append(snakePos[0])
+	if param["game_features"]["snakeY"] == True:
+		feature_array.append(snakePos[1])
+	if param["game_features"]["snakeStartX"] == True:
+		feature_array.append(snakeBody[0][0])
+	if param["game_features"]["snakeStartY"] == True:
+		feature_array.append(snakeBody[0][1])
+	if param["game_features"]["snakeMidX"] == True:
+		feature_array.append(snakeBody[int(len(snakeBody)/2)+1][0])
+	if param["game_features"]["snakeMidY"] == True:
+		feature_array.append(snakeBody[int(len(snakeBody)/2)+1][1])
+	if param["game_features"]["snakeEndX"] == True:
+		feature_array.append(snakeBody[-1][0])
+	if param["game_features"]["snakeEndY"] == True:
+		feature_array.append(snakeBody[-1][1])
+	if param["game_features"]["SnakeLength"] == True:
+		feature_array.append(len(snakeBody))
+	if param["game_features"]["OldDir"] == True:
+		feature_array.append(translateDirToInt(direction))
 	
-	data_list = [foodPos[0], foodPos[1], snakePos[0], snakePos[1], 
-				snakeBody[0][0], snakeBody[0][1], 
-				snakeBody[int(len(snakeBody)/2)+1][0],
-				snakeBody[int(len(snakeBody)/2)+1][1], 
-				snakeBody[-1][0], snakeBody[-1][1],
-				len(snakeBody), translateDirToInt(direction)]
-	data_string = [str(i) for i in data_list]
-	print(data_string)
-	filewriter.writerow(data_string)
+	return feature_array
+		
+
+with open("conf.yaml", 'r') as stream:
+	try:
+		param = yaml.load(stream)
+	except yaml.YAMLError as exc:
+		print(exc)
 
 # load json and create model
 with open('model/snake_player_model.json', 'r') as json_file:
@@ -104,18 +129,12 @@ with open('model/snake_player_model.json', 'r') as json_file:
 	print("Loaded ai player from disk!")
 
 	while True:
-		cur_data_list = np.array([[foodPos[0], foodPos[1], 
-				snakePos[0], snakePos[1], 
-				# ~ snakeBody[0][0], snakeBody[0][1], 
-				snakeBody[int(len(snakeBody)/2)+1][0],
-				snakeBody[int(len(snakeBody)/2)+1][1], 
-				# ~ snakeBody[-1][0], snakeBody[-1][1],
-				# ~ len(snakeBody), 
-				# ~ translateDirToInt(direction)
-				]])
+		
+		cur_data_list = np.array([createFeatureArray(param, foodPos, snakePos, snakeBody, direction)])
 		current_pred = loaded_model.predict(x=cur_data_list)
 		next_dir = np.argmax(current_pred)
-
+		
+		# Translate the output of the nn to direction
 		if next_dir == 2:
 			changeto = 'RIGHT'
 		if next_dir == 1:
@@ -152,18 +171,18 @@ with open('model/snake_player_model.json', 'r') as json_file:
 			direction = changeto
 			
 		# Help Snake trun 180 degrees
-		if changeto == 'RIGHT' and direction == 'LEFT':
-			direction = 'UP'
-			print("Help was needed!")
-		elif changeto == 'LEFT' and direction == 'RIGHT':
-			direction = 'DOWN'
-			print("Help was needed!")
-		elif changeto == 'UP' and direction == 'DOWN':
-			direction = 'RIGHT'
-			print("Help was needed!")
-		elif changeto == 'DOWN' and direction == 'UP':
-			direction = 'LEFT'
-			print("Help was needed!")
+		# ~ if changeto == 'RIGHT' and direction == 'LEFT':
+			# ~ direction = 'UP'
+			# ~ print("Help was needed!")
+		# ~ elif changeto == 'LEFT' and direction == 'RIGHT':
+			# ~ direction = 'DOWN'
+			# ~ print("Help was needed!")
+		# ~ elif changeto == 'UP' and direction == 'DOWN':
+			# ~ direction = 'RIGHT'
+			# ~ print("Help was needed!")
+		# ~ elif changeto == 'DOWN' and direction == 'UP':
+			# ~ direction = 'LEFT'
+			# ~ print("Help was needed!")
 
 		# Update snake position
 		if direction == 'RIGHT':

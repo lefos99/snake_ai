@@ -1,0 +1,25 @@
+game_features:
+ foodX : True
+ foodY : True
+ snakeX : True
+ snakeY : True
+ snakeStartX : False
+ snakeStartY : False
+ snakeMidX : False
+ snakeMidY : False
+ snakeEndX : False
+ snakeEndY : False
+ SnakeLength : False
+ OldDir : False
+ NewDir : False
+
+nn: # last layer should always have 4 neurons
+ n_layers: 5
+ epochs: 25
+ batch_size: 10
+ 1_layer: 25 # input layer
+ 2_layer: 15
+ 3_layer: 10
+ 4_layer: 8
+ 5_layer: 4
+ 6_layer: 4

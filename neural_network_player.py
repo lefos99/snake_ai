@@ -7,19 +7,28 @@ from keras.models import model_from_json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import yaml
+
+with open("conf.yaml", 'r') as stream:
+	try:
+		param = yaml.load(stream)
+	except yaml.YAMLError as exc:
+		print(exc)
 
 # fix random seed for reproducibility
 seed = 7
 np.random.seed(seed)
 
+# load the features you want to use in the nn
+drop_list = []
+for key in param["game_features"]:
+	if param["game_features"][key] == False:
+		drop_list.append(str(key))
+
 # load data
 gameplay_data = pd.read_csv("./snake_data.csv")
 Y = gameplay_data['NewDir']
-X = gameplay_data.drop(['NewDir',
-						'OldDir',
-						'snakeStartX','snakeStartY',
-						# ~ 'snakeMidX','snakeMidY',
-						'snakeEndX','snakeEndY','SnakeLength'], axis=1)
+X = gameplay_data.drop(drop_list, axis=1)
 X = np.array(X.values)
 n_features = X.shape[1]
 print("Using number of features: " + str(X.shape[1]))
@@ -33,16 +42,16 @@ Y = np_utils.to_categorical(encoded_Y)
 
 # create model
 model = Sequential()
-model.add(Dense(20, input_shape=(n_features,), activation='relu'))
-model.add(Dense(15, activation='relu'))
-model.add(Dense(8, activation='relu'))
-model.add(Dense(4, activation='softmax')) 
+model.add(Dense(param["nn"][str(1)+"_layer"], input_shape=(n_features,), activation='relu'))
+for i in range(param["nn"]["n_layers"]):
+	model.add(Dense(param["nn"][str(i+1)+"_layer"], activation='relu'))
+model.add(Dense(param["nn"][str(i+1)+"_layer"], activation='softmax')) 
 
 # compile model
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 # fit the model
-history = model.fit(X, Y, epochs=150, batch_size=10)
+history = model.fit(X, Y, epochs=param["nn"]["epochs"], batch_size=param["nn"]["batch_size"])
 
 # evaluate the model
 scores = model.evaluate(X, Y)
