@@ -13,6 +13,8 @@ from keras.models import model_from_json
 import pandas as pd
 import yaml
 
+from helper import *
+
 # Pygame Init
 init_status = pygame.init()
 if init_status[1] > 0:
@@ -70,47 +72,6 @@ def showScore(choice=1):
 	else:
 		Srect.midtop = (320, 100)
 	playSurface.blit(Ssurf, Srect)
-
-def translateDirToInt(direction):
-	if direction == 'UP':
-		dirinteger = 0
-	elif direction == 'LEFT':
-		dirinteger = 1
-	elif direction == 'RIGHT':
-		dirinteger = 2
-	elif direction == 'DOWN':
-		dirinteger = 3
-	return dirinteger
-
-# Save the training data in a csv file
-def createFeatureArray(param, foodPos, snakePos, snakeBody, direction):
-	feature_array = []
-	if param["game_features"]["foodX"] == True:
-		feature_array.append(foodPos[0])
-	if param["game_features"]["foodY"] == True:
-		feature_array.append(foodPos[1])
-	if param["game_features"]["snakeX"] == True:
-		feature_array.append(snakePos[0])
-	if param["game_features"]["snakeY"] == True:
-		feature_array.append(snakePos[1])
-	if param["game_features"]["snakeStartX"] == True:
-		feature_array.append(snakeBody[0][0])
-	if param["game_features"]["snakeStartY"] == True:
-		feature_array.append(snakeBody[0][1])
-	if param["game_features"]["snakeMidX"] == True:
-		feature_array.append(snakeBody[int(len(snakeBody)/2)+1][0])
-	if param["game_features"]["snakeMidY"] == True:
-		feature_array.append(snakeBody[int(len(snakeBody)/2)+1][1])
-	if param["game_features"]["snakeEndX"] == True:
-		feature_array.append(snakeBody[-1][0])
-	if param["game_features"]["snakeEndY"] == True:
-		feature_array.append(snakeBody[-1][1])
-	if param["game_features"]["SnakeLength"] == True:
-		feature_array.append(len(snakeBody))
-	if param["game_features"]["OldDir"] == True:
-		feature_array.append(translateDirToInt(direction))
-	
-	return feature_array
 		
 
 with open("conf.yaml", 'r') as stream:

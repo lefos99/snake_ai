@@ -8,6 +8,7 @@ import time
 import random
 import csv
 import pandas as pd
+from helper import *
 
 # Pygame Init
 init_status = pygame.init()
@@ -56,17 +57,17 @@ def gameOver():
 	pygame.quit()
 	sys.exit()
 
-def translateDirToInt(direction):
-	dirinteger = 0
-	if direction == 'UP':
-		dirinteger = 0
-	elif direction == 'LEFT':
-		dirinteger = 1
-	elif direction == 'RIGHT':
-		dirinteger = 2
-	elif direction == 'DOWN':
-		dirinteger = 3
-	return dirinteger
+# ~ def translateDirToInt(direction):
+	# ~ dirinteger = 0
+	# ~ if direction == 'UP':
+		# ~ dirinteger = 0
+	# ~ elif direction == 'LEFT':
+		# ~ dirinteger = 1
+	# ~ elif direction == 'RIGHT':
+		# ~ dirinteger = 2
+	# ~ elif direction == 'DOWN':
+		# ~ dirinteger = 3
+	# ~ return dirinteger
 		
 # Show Score
 def showScore(choice=1):
