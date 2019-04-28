@@ -2,6 +2,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasClassifier
 from keras.utils import np_utils
+from keras.utils.vis_utils import plot_model
 from sklearn.preprocessing import LabelEncoder
 from keras.models import model_from_json
 import numpy as np
@@ -57,6 +58,14 @@ history = model.fit(X, Y, epochs=param["nn"]["epochs"], batch_size=param["nn"]["
 scores = model.evaluate(X, Y)
 print("\n%s: %.2f%%" % (model.metrics_names[1], scores[1]*100))
 
+# serialize model to JSON
+model_json = model.to_json()
+with open("model/snake_player_model.json", "w") as json_file:
+    json_file.write(model_json)
+# serialize weights to HDF5
+model.save_weights("model/model.h5")
+print("Saved model to disk")
+
 # list all data in history
 print(history.history.keys())
 # summarize history for accuracy
@@ -66,11 +75,4 @@ plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
 plt.savefig('model/model_accuracy.png')
-
-# serialize model to JSON
-model_json = model.to_json()
-with open("model/snake_player_model.json", "w") as json_file:
-    json_file.write(model_json)
-# serialize weights to HDF5
-model.save_weights("model/model.h5")
-print("Saved model to disk")
+plot_model(model, to_file='model/model_plot.png', show_shapes=True, show_layer_names=True)

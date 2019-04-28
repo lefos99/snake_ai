@@ -91,7 +91,7 @@ with open('model/snake_player_model.json', 'r') as json_file:
 
 	while True:
 		
-		cur_data_list = np.array([createFeatureArray(param, foodPos, snakePos, snakeBody, direction)])
+		cur_data_list = np.array([createFeatureArray(param, foodPos, snakePos, snakeBody, direction, width, height)])
 		current_pred = loaded_model.predict(x=cur_data_list)
 		next_dir = np.argmax(current_pred)
 		
@@ -132,18 +132,19 @@ with open('model/snake_player_model.json', 'r') as json_file:
 			direction = changeto
 			
 		# Help Snake trun 180 degrees
-		# ~ if changeto == 'RIGHT' and direction == 'LEFT':
-			# ~ direction = 'UP'
-			# ~ print("Help was needed!")
-		# ~ elif changeto == 'LEFT' and direction == 'RIGHT':
-			# ~ direction = 'DOWN'
-			# ~ print("Help was needed!")
-		# ~ elif changeto == 'UP' and direction == 'DOWN':
-			# ~ direction = 'RIGHT'
-			# ~ print("Help was needed!")
-		# ~ elif changeto == 'DOWN' and direction == 'UP':
-			# ~ direction = 'LEFT'
-			# ~ print("Help was needed!")
+		if param["rotation_help"] == True:
+			if changeto == 'RIGHT' and direction == 'LEFT':
+				direction = 'UP'
+				print("Help was needed!")
+			elif changeto == 'LEFT' and direction == 'RIGHT':
+				direction = 'UP'
+				print("Help was needed!")
+			elif changeto == 'UP' and direction == 'DOWN':
+				direction = 'RIGHT'
+				print("Help was needed!")
+			elif changeto == 'DOWN' and direction == 'UP':
+				direction = 'RIGHT'
+				print("Help was needed!")
 
 		# Update snake position
 		if direction == 'RIGHT':

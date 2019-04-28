@@ -56,18 +56,6 @@ def gameOver():
 	time.sleep(4)
 	pygame.quit()
 	sys.exit()
-
-# ~ def translateDirToInt(direction):
-	# ~ dirinteger = 0
-	# ~ if direction == 'UP':
-		# ~ dirinteger = 0
-	# ~ elif direction == 'LEFT':
-		# ~ dirinteger = 1
-	# ~ elif direction == 'RIGHT':
-		# ~ dirinteger = 2
-	# ~ elif direction == 'DOWN':
-		# ~ dirinteger = 3
-	# ~ return dirinteger
 		
 # Show Score
 def showScore(choice=1):
@@ -80,19 +68,6 @@ def showScore(choice=1):
 		Srect.midtop = (320, 100)
 	playSurface.blit(Ssurf, Srect)
 
-# Save the training data in a csv file
-def trainingDataToString(filewriter, foodPos, snakePos, snakeBody, old_direction, new_direction):
-	
-	data_list = [foodPos[0], foodPos[1], snakePos[0], snakePos[1], 
-				snakeBody[0][0], snakeBody[0][1], 
-				snakeBody[int(len(snakeBody)/2)+1][0],
-				snakeBody[int(len(snakeBody)/2)+1][1], 
-				snakeBody[-1][0], snakeBody[-1][1],
-				len(snakeBody), translateDirToInt(old_direction),
-				translateDirToInt(new_direction)]
-	data_string = [str(i) for i in data_list]
-	filewriter.writerow(data_string)
-
 df = pd.read_csv('snake_data.csv')
 if(df.empty):
 	mode = 'w'
@@ -103,9 +78,11 @@ else:
 
 with open('snake_data.csv', mode) as csvfile:
 	filewriter = csv.writer(csvfile, delimiter=',')
-	data_header = ["foodX", "foodY", "snakeX", "snakeY", "snakeStartX", 
-				"snakeStartY", "snakeMidX", "snakeMidY", "snakeEndX", 
-				"snakeEndY", "SnakeLength", "OldDir", "NewDir"]
+	data_header = ["distWall1", "distWall2", "distWall3", "distWall4",
+				"distFood1", "distFood2",
+				"distOwnBody1", "distOwnBody2", "distOwnBody3", "distOwnBody4",
+				"OldDir","NewDir"]
+	
 	if mode == 'w':
 		filewriter.writerow(data_header)
 	
@@ -127,7 +104,7 @@ with open('snake_data.csv', mode) as csvfile:
 					pygame.event.post(pygame.event.Event(pygame.QUIT))
 					
 		# Save data for each instance of the game
-		trainingDataToString(filewriter, foodPos, snakePos, snakeBody, direction, changeto)
+		trainingDataToString(filewriter, foodPos, snakePos, snakeBody, direction, changeto, width, height)
 		
 		# Validate direction
 		if changeto == 'RIGHT' and direction != 'LEFT':

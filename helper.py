@@ -10,45 +10,61 @@ def translateDirToInt(direction):
 	elif direction == 'DOWN':
 		dirinteger = 3
 	return dirinteger
+
+# Returns the distance in direction x and y between body and head of snake.
+def distanceToBody(snakePos, snakeBody, width, height):
+	# define max possible distances
+	distOwnBody1, distOwnBody2, distOwnBody3, distOwnBody4 = snakePos[1], width - snakePos[0], height - snakePos[1], snakePos[0]	
+	for bodyPart in snakeBody:
+		if snakePos[0] == bodyPart[0] and snakePos[1] > bodyPart[1]:
+			distOwnBody1 = min(snakePos[1] - bodyPart[1], distOwnBody1)
+		if snakePos[0] == bodyPart[0] and snakePos[1] < bodyPart[1]:
+			distOwnBody3 = min(bodyPart[1] - snakePos[1], distOwnBody3) 
+		if snakePos[1] == bodyPart[1] and snakePos[0] < bodyPart[0]:
+			distOwnBody2 = min(bodyPart[0] - snakePos[0], distOwnBody4)
+		if snakePos[1] == bodyPart[1] and snakePos[0] > bodyPart[0]:
+			distOwnBody4 = min(snakePos[0] - bodyPart[0], distOwnBody2)
+	
+	return distOwnBody1, distOwnBody2, distOwnBody3, distOwnBody4
 		
 # Save the training data in a csv file
-def trainingDataToString(filewriter, foodPos, snakePos, snakeBody, old_direction, new_direction):
+def trainingDataToString(filewriter, foodPos, snakePos, snakeBody, old_direction, new_direction, width, height):
 	
-	data_list = [foodPos[0], foodPos[1], snakePos[0], snakePos[1], 
-				snakeBody[0][0], snakeBody[0][1], 
-				snakeBody[int(len(snakeBody)/2)+1][0],
-				snakeBody[int(len(snakeBody)/2)+1][1], 
-				snakeBody[-1][0], snakeBody[-1][1],
-				len(snakeBody), translateDirToInt(old_direction),
+	distOwnBody1, distOwnBody2, distOwnBody3, distOwnBody4 = distanceToBody(snakePos, snakeBody, width, height)
+	data_list = [snakePos[1], width - snakePos[0], height - snakePos[1], snakePos[0],
+				snakePos[1] - foodPos[1], snakePos[0] - foodPos[0], 
+				distOwnBody1, distOwnBody2, distOwnBody3, distOwnBody4,
+				translateDirToInt(old_direction),
 				translateDirToInt(new_direction)]
 	data_string = [str(i) for i in data_list]
 	filewriter.writerow(data_string)
 	
 # Create the array of features
-def createFeatureArray(param, foodPos, snakePos, snakeBody, direction):
+def createFeatureArray(param, foodPos, snakePos, snakeBody, direction, width, height):
 	feature_array = []
-	if param["game_features"]["foodX"] == True:
-		feature_array.append(foodPos[0])
-	if param["game_features"]["foodY"] == True:
-		feature_array.append(foodPos[1])
-	if param["game_features"]["snakeX"] == True:
-		feature_array.append(snakePos[0])
-	if param["game_features"]["snakeY"] == True:
+	
+	distOwnBody1, distOwnBody2, distOwnBody3, distOwnBody4 = distanceToBody(snakePos, snakeBody, width, height)
+	
+	if param["game_features"]["distWall1"] == True:
 		feature_array.append(snakePos[1])
-	if param["game_features"]["snakeStartX"] == True:
-		feature_array.append(snakeBody[0][0])
-	if param["game_features"]["snakeStartY"] == True:
-		feature_array.append(snakeBody[0][1])
-	if param["game_features"]["snakeMidX"] == True:
-		feature_array.append(snakeBody[int(len(snakeBody)/2)+1][0])
-	if param["game_features"]["snakeMidY"] == True:
-		feature_array.append(snakeBody[int(len(snakeBody)/2)+1][1])
-	if param["game_features"]["snakeEndX"] == True:
-		feature_array.append(snakeBody[-1][0])
-	if param["game_features"]["snakeEndY"] == True:
-		feature_array.append(snakeBody[-1][1])
-	if param["game_features"]["SnakeLength"] == True:
-		feature_array.append(len(snakeBody))
+	if param["game_features"]["distWall2"] == True:
+		feature_array.append(width - snakePos[0])
+	if param["game_features"]["distWall3"] == True:
+		feature_array.append(height - snakePos[1])
+	if param["game_features"]["distWall4"] == True:
+		feature_array.append(snakePos[0])
+	if param["game_features"]["distFood1"] == True:
+		feature_array.append(snakePos[1] - foodPos[1])
+	if param["game_features"]["distFood2"] == True:
+		feature_array.append(snakePos[0] - foodPos[0])
+	if param["game_features"]["distOwnBody1"] == True:
+		feature_array.append(distOwnBody1)
+	if param["game_features"]["distOwnBody2"] == True:
+		feature_array.append(distOwnBody2)
+	if param["game_features"]["distOwnBody3"] == True:
+		feature_array.append(distOwnBody3)
+	if param["game_features"]["distOwnBody4"] == True:
+		feature_array.append(distOwnBody4)
 	if param["game_features"]["OldDir"] == True:
 		feature_array.append(translateDirToInt(direction))
 	
