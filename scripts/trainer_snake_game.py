@@ -7,12 +7,7 @@ import sys
 import time
 import random
 import csv
-import numpy as np
-
-from keras.models import model_from_json
 import pandas as pd
-import yaml
-
 from helper import *
 
 # Pygame Init
@@ -42,10 +37,10 @@ fpsController = pygame.time.Clock()
 delta = 10
 snakePos = [100, 50]
 snakeBody = [[100, 50], [90, 50], [80, 50]]
-foodPos = [400, 50]
+foodPos = [random.randrange(1, width // 10) * delta, random.randrange(1, height // 10) * delta]
 foodSpawn = True
 direction = 'RIGHT'
-changeto = ''
+changeto = 'RIGHT'
 score = 0
 
 
@@ -57,12 +52,11 @@ def gameOver():
 	GOrect.midtop = (320, 25)
 	playSurface.blit(GOsurf, GOrect)
 	showScore(0)
-	print("Score: " + str(score) + "!")
 	pygame.display.flip()
 	time.sleep(4)
 	pygame.quit()
 	sys.exit()
-
+		
 # Show Score
 def showScore(choice=1):
 	SFont = pygame.font.SysFont('monaco', 32)
@@ -73,41 +67,26 @@ def showScore(choice=1):
 	else:
 		Srect.midtop = (320, 100)
 	playSurface.blit(Ssurf, Srect)
-		
 
-with open("conf.yaml", 'r') as stream:
-	try:
-		param = yaml.load(stream)
-	except yaml.YAMLError as exc:
-		print(exc)
+df = pd.read_csv('../snake_data.csv')
+if(df.empty):
+	mode = 'w'
+	print("No one has played yet...")
+else:
+	mode = 'a'
+	print("Someone has already played...")
 
-wait = input("PRESS ENTER TO CONTINUE.")
-
-# load json and create model
-with open('model/snake_player_model.json', 'r') as json_file:
-	loaded_model_json = json_file.read()
-	json_file.close()
-	loaded_model = model_from_json(loaded_model_json)
-	# load weights into new model
-	loaded_model.load_weights("model/model.h5")
-	print("Loaded ai player from disk!")
-
+with open('../snake_data.csv', mode) as csvfile:
+	filewriter = csv.writer(csvfile, delimiter=',')
+	data_header = ["distWall1", "distWall2", "distWall3", "distWall4",
+				"distFood1", "distFood2",
+				"distOwnBody1", "distOwnBody2", "distOwnBody3", "distOwnBody4",
+				"OldDir","NewDir"]
+	
+	if mode == 'w':
+		filewriter.writerow(data_header)
+	
 	while True:
-		
-		cur_data_list = np.array([createFeatureArray(param, foodPos, snakePos, snakeBody, direction, width, height)])
-		current_pred = loaded_model.predict(x=cur_data_list)
-		next_dir = np.argmax(current_pred)
-		
-		# Translate the output of the nn to direction
-		if next_dir == 2:
-			changeto = 'RIGHT'
-		if next_dir == 1:
-			changeto = 'LEFT'
-		if next_dir == 0:
-			changeto = 'UP'
-		if next_dir == 3:
-			changeto = 'DOWN'
-		print("Change direction to " + changeto)	
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				pygame.quit()
@@ -123,7 +102,10 @@ with open('model/snake_player_model.json', 'r') as json_file:
 					changeto = 'DOWN'
 				if event.key == pygame.K_ESCAPE:
 					pygame.event.post(pygame.event.Event(pygame.QUIT))
-	
+					
+		# Save data for each instance of the game
+		trainingDataToString(filewriter, foodPos, snakePos, snakeBody, direction, changeto, width, height)
+		
 		# Validate direction
 		if changeto == 'RIGHT' and direction != 'LEFT':
 			direction = changeto
@@ -133,21 +115,6 @@ with open('model/snake_player_model.json', 'r') as json_file:
 			direction = changeto
 		elif changeto == 'DOWN' and direction != 'UP':
 			direction = changeto
-			
-		# Help Snake trun 180 degrees
-		if param["rotation_help"] == True:
-			if changeto == 'RIGHT' and direction == 'LEFT':
-				direction = 'UP'
-				print("Help was needed!")
-			elif changeto == 'LEFT' and direction == 'RIGHT':
-				direction = 'UP'
-				print("Help was needed!")
-			elif changeto == 'UP' and direction == 'DOWN':
-				direction = 'RIGHT'
-				print("Help was needed!")
-			elif changeto == 'DOWN' and direction == 'UP':
-				direction = 'RIGHT'
-				print("Help was needed!")
 
 		# Update snake position
 		if direction == 'RIGHT':
@@ -187,4 +154,4 @@ with open('model/snake_player_model.json', 'r') as json_file:
 		
 		showScore()
 		pygame.display.flip()
-		fpsController.tick(20)
+		fpsController.tick(10)
