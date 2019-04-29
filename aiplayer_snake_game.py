@@ -57,6 +57,7 @@ def gameOver():
 	GOrect.midtop = (320, 25)
 	playSurface.blit(GOsurf, GOrect)
 	showScore(0)
+	print("Score: " + str(score) + "!")
 	pygame.display.flip()
 	time.sleep(4)
 	pygame.quit()
@@ -79,6 +80,8 @@ with open("conf.yaml", 'r') as stream:
 		param = yaml.load(stream)
 	except yaml.YAMLError as exc:
 		print(exc)
+
+wait = input("PRESS ENTER TO CONTINUE.")
 
 # load json and create model
 with open('model/snake_player_model.json', 'r') as json_file:

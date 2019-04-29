@@ -24,6 +24,17 @@ def distanceToBody(snakePos, snakeBody, width, height):
 			distOwnBody2 = min(bodyPart[0] - snakePos[0], distOwnBody4)
 		if snakePos[1] == bodyPart[1] and snakePos[0] > bodyPart[0]:
 			distOwnBody4 = min(snakePos[0] - bodyPart[0], distOwnBody2)
+			
+	for bodyPart in snakeBody:
+		# Find the "neck of the snake"
+		if snakePos[0] == bodyPart[0] and snakePos[1] - bodyPart[1] == 10:
+			distOwnBody1 = -10
+		if snakePos[0] == bodyPart[0] and bodyPart[1] - snakePos[1] == 10:
+			distOwnBody3 = -10
+		if snakePos[1] == bodyPart[1] and bodyPart[0] - snakePos[0] == 10:
+			distOwnBody2 = -10
+		if snakePos[1] == bodyPart[1] and snakePos[0] - bodyPart[0] == 10:
+			distOwnBody4 = -10
 	
 	return distOwnBody1, distOwnBody2, distOwnBody3, distOwnBody4
 		
@@ -67,5 +78,7 @@ def createFeatureArray(param, foodPos, snakePos, snakeBody, direction, width, he
 		feature_array.append(distOwnBody4)
 	if param["game_features"]["OldDir"] == True:
 		feature_array.append(translateDirToInt(direction))
+	
+	print(feature_array)
 	
 	return feature_array
